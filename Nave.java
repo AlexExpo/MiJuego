@@ -10,7 +10,7 @@ import javafx.scene.image.Image;
 public class Nave extends ImageView
 {
     
-    private int velocidadJugador;
+    private int velocidadNave;
     
     private int limiteIzquierdo;
     
@@ -22,7 +22,7 @@ public class Nave extends ImageView
     
     public Nave(int limiteIzquierdo, int limiteDerecho)
     {
-        velocidadJugador = 1;
+        velocidadNave = 1;
         this.limiteIzquierdo = limiteIzquierdo;
         this.limiteDerecho = limiteDerecho;
         setFitWidth(ANCHO);
@@ -33,25 +33,38 @@ public class Nave extends ImageView
         setImage(image);
     }
     
+    /**
+     * Metodo para hacer avanzar la nave en la escena a la derecha
+     * comprobando que no se salga de la escena.
+     */
     public void moverDerecha() 
     {
         if (getBoundsInParent().getMaxX() != limiteDerecho) {
-            velocidadJugador = 1;
+            velocidadNave = 1;
         }
     }
     
+    /**
+     * Metodo para hacer avanzar la nave en la escena a la izquierda
+     * comprobando que no se salga de la escena.
+     */
     public void moverIzquierda() 
     {
         if (getBoundsInParent().getMinX() != limiteIzquierdo) {
-            velocidadJugador = -1;
+            velocidadNave = -1;
         }
     }
     
+    /**
+     * Metodo para hacer avanzar la nave en la escena y en caso 
+     * de estar en los limites de la escena interrumpir la 
+     * velocidad y parar la nave.
+     */
     public void hacerAvanzarNave()
     {
-        setTranslateX(getTranslateX() + velocidadJugador);
+        setTranslateX(getTranslateX() + velocidadNave);
         if (getBoundsInParent().getMinX() == limiteIzquierdo || getBoundsInParent().getMaxX() == limiteDerecho) {
-            velocidadJugador = 0;
+            velocidadNave = 0;
         }
     }
     

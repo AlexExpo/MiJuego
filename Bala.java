@@ -18,15 +18,33 @@ public class Bala extends Rectangle
     
     public Bala()
     {
-        velocidadBala = -3;
+        velocidadBala = -5;
         setWidth(ANCHO);
         setHeight(ALTO);
         setFill(Color.RED);
     }
     
+    /**
+     * Metodo para hacer avanzar la bala en la escena.
+     */
     public void hacerAvanzarBala()
     {
         setTranslateY(getTranslateY() + velocidadBala);
+    }
+    
+    /**
+     * Metodo que comprueba si una bala impacta contra 
+     * un enemigo, es decir, se intercepta. Si una bala 
+     * impacta contra un enemigo el metodo devulve true, 
+     * en caso contrario devuelve false.
+     */
+    public boolean controlarSiImpactaContraEnemigo(Enemigo enemigoAComprobar)
+    {
+        boolean colision = false;
+        if (enemigoAComprobar.getBoundsInParent().intersects(getBoundsInParent())) {
+            colision = true;
+        }
+        return colision;
     }
     
 }

@@ -26,6 +26,8 @@ public class Juego extends Application
     private int tiempoEnSegundos;
     
     private int contadorDeBalas;
+    
+    private int contadorDeEnemigos;
 
     private static final int ANCHO_ESCENA = 600;
     
@@ -37,13 +39,11 @@ public class Juego extends Application
     
     private ArrayList<Enemigo> enemigos;
     
-    /**
-     * Constructor for objects of class Juego
-     */
     public Juego()
     {
         tiempoEnSegundos = 0;
         contadorDeBalas = 0;
+        contadorDeEnemigos = 0;
         balas = new ArrayList<>();
         enemigos = new ArrayList<>();
     }
@@ -66,7 +66,7 @@ public class Juego extends Application
         iv1.setImage(image);
         contenedor.getChildren().add(iv1);
 
-        Nave nave = new Nave(0, (int) escena.getWidth());
+        Nave nave = new Nave(0, ANCHO_ESCENA);
         contenedor.getChildren().add(nave);
         
         Label tiempoPasado = new Label("0");
@@ -77,14 +77,15 @@ public class Juego extends Application
         escenario.show();
         
         
-        escena.setOnKeyPressed(event2 -> {
-            if (event2.getCode() == KeyCode.RIGHT) {
+        escena.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.RIGHT) {
                     nave.moverDerecha();
             }
-            else if (event2.getCode() == KeyCode.LEFT) {
+            else if (event.getCode() == KeyCode.LEFT) {
                     nave.moverIzquierda();
             }
-            else if (event2.getCode() == KeyCode.SPACE) {
+            //Cada vez que se pulsa el espacio se crea una bala y se mete a la escena.
+            else if (event.getCode() == KeyCode.SPACE) {
                 Bala bala = new Bala();
                 balas.add(bala);
                 balas.get(contadorDeBalas).setTranslateY(nave.getBoundsInParent().getMinY());
@@ -98,18 +99,64 @@ public class Juego extends Application
         Timeline timeline = new Timeline();
         KeyFrame keyframe = new KeyFrame(Duration.seconds(0.01), event -> {
             
+            int minutos = tiempoEnSegundos / 60;
+            int segundos = tiempoEnSegundos % 60;
+            
+            
+            //Creo un enemigo cada 10 segundos.
+            if (segundos % 10 == 0) {
+                Enemigo enemigo = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
+                enemigos.add(enemigo);
+                contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
+                contadorDeEnemigos++;
+            }
+            
+            
             nave.hacerAvanzarNave();
             
-            for (Bala balaActual : balas) {
-                balaActual.hacerAvanzarBala();
-                if (balaActual.getBoundsInParent().getMaxY() < 0) {
-                    contenedor.getChildren().remove(balaActual);
+            /**
+             * Le doy movimineto a las balas y en caso de que 
+             * esten fuera de la escena las elimino del ArrayList 
+             * y de la escena.
+             */
+            for (int contador = 0; contador < balas.size(); contador++) {
+                balas.get(contador).hacerAvanzarBala();
+                if (balas.get(contador).getBoundsInParent().getMaxY() < 0) {
+                    contenedor.getChildren().remove(balas.get(contador));
+                    balas.remove(balas.get(contador));
+                    contadorDeBalas--;
+                    contador--;
                 }
             }
             
-            int minutos = tiempoEnSegundos / 60;
-            int segundos = tiempoEnSegundos % 60;
-            tiempoPasado.setText(minutos + ":" + segundos);          
+            //Le doy movimineto a los enemigos.
+            for (Enemigo enemigoActual : enemigos) {
+                enemigoActual.moverEnemigo();
+            }
+            
+            /**
+             * Compruebo si una bala impacta contra un enemigo, 
+             * y en caso verdadero, elimino a la bala que imapacto 
+             * contra el ememigo y al propio enemigo de sus respectivos 
+             * ArrayList y de la escena.
+             */
+            for (int contador = 0; contador < enemigos.size(); contador++) {
+                for (int contador2 = 0; contador < balas.size(); contador2++) {
+                    if (balas.get(contador2).controlarSiImpactaContraEnemigo(enemigos.get(contador))) {
+                        contenedor.getChildren().remove(enemigos.get(contador));
+                        enemigos.remove(enemigos.get(contador));
+                        contadorDeEnemigos--;
+                        contador--;
+                        contenedor.getChildren().remove(balas.get(contador2));
+                        balas.remove(balas.get(contador2));
+                        contadorDeBalas--;
+                        contador2--;
+                    }
+                }
+            }
+            
+            
+            tiempoPasado.setText(minutos + ":" + segundos);
             
         });
         
