@@ -68,6 +68,21 @@ public class Nave extends ImageView
         }
     }
     
+    /**
+     * Metodo que comprueba si una nave impacta contra 
+     * un enemigo, es decir, se intercepta. Si una nave
+     * impacta contra un enemigo el metodo devulve true, 
+     * en caso contrario devuelve false.
+     */
+    public boolean controlarSiChocaContraEnemigo(Enemigo enemigoAComprobar)
+    {
+        boolean colision = false;
+        if (enemigoAComprobar.getBoundsInParent().intersects(getBoundsInParent())) {
+            colision = true;
+        }
+        return colision;
+    }
+    
 }
 
 

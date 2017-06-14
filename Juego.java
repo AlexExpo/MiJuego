@@ -12,6 +12,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import java.util.ArrayList;
 
 /**
@@ -32,8 +35,6 @@ public class Juego extends Application
     private static final int ANCHO_ESCENA = 600;
     
     private static final int ALTO_ESCENA = 600;
-    
-    private static boolean annadido = false;
     
     private ArrayList<Bala> balas;
     
@@ -70,6 +71,7 @@ public class Juego extends Application
         contenedor.getChildren().add(nave);
         
         Label tiempoPasado = new Label("0");
+        tiempoPasado.setTextFill(Color.web("#3701E9"));
         contenedor.getChildren().add(tiempoPasado);
 
         
@@ -103,8 +105,8 @@ public class Juego extends Application
             int segundos = tiempoEnSegundos % 60;
             
             
-            //Creo un enemigo cada 10 segundos.
-            if (segundos % 10 == 0) {
+            //Creo un enemigo cada 4 segundos.
+            if (segundos % 4 == 0) {
                 Enemigo enemigo = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
                 enemigos.add(enemigo);
                 contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
@@ -155,10 +157,31 @@ public class Juego extends Application
                 }
             }
             
+            /**
+             * Compruebo si algun enemigo colisiona con la nabe, 
+             * en caso de no colisionar, no pasa nada. En caso 
+             * de colisionar con la nave, crea un mensaje de game 
+             * over junto con la puntuacion y el juego termina.
+             */
+            for (Enemigo enemigoAComprobar : enemigos) {
+                if (nave.controlarSiChocaContraEnemigo(enemigoAComprobar)) {
+                    Label mensajeGameOver = new Label("GAME OVER...\n" + tiempoPasado.getText());
+                    mensajeGameOver.setTranslateX(escena.getWidth() / 3);
+                    mensajeGameOver.setTranslateY(escena.getHeight() / 3);
+                    mensajeGameOver.setTextFill(Color.web("#0A12AC"));
+                    mensajeGameOver.setFont(Font.font("Cambria", 32));
+                    mensajeGameOver.setLineSpacing(5);
+                    mensajeGameOver.setTextAlignment(TextAlignment.CENTER);
+                    contenedor.getChildren().add(mensajeGameOver);
+                    timeline.stop();
+                }
+            }
             
-            tiempoPasado.setText(minutos + ":" + segundos);
+            
+            tiempoPasado.setText("Puntuacion: " + minutos + ":" + segundos);
             
         });
+        
         
         timeline.getKeyFrames().add(keyframe);
 
@@ -169,6 +192,7 @@ public class Juego extends Application
         boton.setLayoutX(450);
         boton.setLayoutY(0);
         boton.setOnAction(event -> {
+            tiempoEnSegundos = 0;
             timeline.play();
             contenedor.getChildren().remove(boton);
         });

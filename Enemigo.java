@@ -38,7 +38,7 @@ public class Enemigo extends ImageView
         setFitHeight(ALTO);
         setTranslateX(30 + aleatorio.nextInt(anchoEscena - 30));
         setTranslateY(30);
-        Image image = new Image("enemigo2.jpg");
+        Image image = new Image("enemigo.png");
         setImage(image);
     }
     

@@ -21,7 +21,7 @@ public class Bala extends Rectangle
         velocidadBala = -5;
         setWidth(ANCHO);
         setHeight(ALTO);
-        setFill(Color.RED);
+        setFill(Color.GREEN);
     }
     
     /**
