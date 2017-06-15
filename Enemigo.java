@@ -15,6 +15,8 @@ public class Enemigo extends ImageView
     
     private int velocidadEnYEnemigo;
     
+    private int velocidadAleatoria;
+    
     private int limiteIzquierdo;
     
     private int limiteDerecho;
@@ -27,17 +29,20 @@ public class Enemigo extends ImageView
     
     private static final int ALTO = 30;
     
+    private static final int CONTROLADOR_DE_ESCENA = 40;
+    
     public Enemigo(int anchoEscena, int altoEscena)
     {
         Random aleatorio = new Random();
         this.anchoEscena = anchoEscena;
         this.altoEscena = altoEscena;
-        velocidadEnXEnemigo = 1;
-        velocidadEnYEnemigo = 1;
+        velocidadAleatoria = 1 + aleatorio.nextInt(2);
+        velocidadEnXEnemigo = velocidadAleatoria;
+        velocidadEnYEnemigo = velocidadAleatoria;
         setFitWidth(ANCHO);
         setFitHeight(ALTO);
-        setTranslateX(30 + aleatorio.nextInt(anchoEscena - 30));
-        setTranslateY(30);
+        setTranslateX(aleatorio.nextInt(anchoEscena - CONTROLADOR_DE_ESCENA));
+        setTranslateY(aleatorio.nextInt(30));
         Image image = new Image("enemigo.png");
         setImage(image);
     }

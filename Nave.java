@@ -22,7 +22,7 @@ public class Nave extends ImageView
     
     public Nave(int limiteIzquierdo, int limiteDerecho)
     {
-        velocidadNave = 1;
+        velocidadNave = 2;
         this.limiteIzquierdo = limiteIzquierdo;
         this.limiteDerecho = limiteDerecho;
         setFitWidth(ANCHO);
@@ -40,7 +40,7 @@ public class Nave extends ImageView
     public void moverDerecha() 
     {
         if (getBoundsInParent().getMaxX() != limiteDerecho) {
-            velocidadNave = 1;
+            velocidadNave = 2;
         }
     }
     
@@ -51,7 +51,7 @@ public class Nave extends ImageView
     public void moverIzquierda() 
     {
         if (getBoundsInParent().getMinX() != limiteIzquierdo) {
-            velocidadNave = -1;
+            velocidadNave = -2;
         }
     }
     

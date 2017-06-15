@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Write a description of class Juego here.
@@ -31,20 +32,34 @@ public class Juego extends Application
     private int contadorDeBalas;
     
     private int contadorDeEnemigos;
-
-    private static final int ANCHO_ESCENA = 600;
     
-    private static final int ALTO_ESCENA = 600;
+    private int enemigosEliminados;
+    
+    private int oleada;
     
     private ArrayList<Bala> balas;
     
     private ArrayList<Enemigo> enemigos;
+    
+    private static final int ANCHO_ESCENA = 600;
+    
+    private static final int ALTO_ESCENA = 600;
+    
+    private static final int CONTROLADOR_DE_ESCENA = 40;
+    
+    private static final int CONTROLADOR_MENSAJE_ERROR_X = 220;
+    
+    private static final int CONTROLADOR_MENSAJE_ERROR_Y = 100;
+    
+    private static final int NUMERO_MAXIMO_DE_ENEMIGOS_EN_OLEADA = 20;
     
     public Juego()
     {
         tiempoEnSegundos = 0;
         contadorDeBalas = 0;
         contadorDeEnemigos = 0;
+        enemigosEliminados = 0;
+        oleada = 1;
         balas = new ArrayList<>();
         enemigos = new ArrayList<>();
     }
@@ -97,6 +112,10 @@ public class Juego extends Application
             }
         });
         
+        Enemigo enemigo = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
+        enemigos.add(enemigo);
+        contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
+        contadorDeEnemigos++;
         
         Timeline timeline = new Timeline();
         KeyFrame keyframe = new KeyFrame(Duration.seconds(0.01), event -> {
@@ -104,15 +123,36 @@ public class Juego extends Application
             int minutos = tiempoEnSegundos / 60;
             int segundos = tiempoEnSegundos % 60;
             
-            
             //Creo un enemigo cada 4 segundos.
-            if (segundos % 4 == 0) {
-                Enemigo enemigo = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
-                enemigos.add(enemigo);
-                contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
-                contadorDeEnemigos++;
-            }
-            
+            //if (segundos % 5 == 0) {
+                //Enemigo enemigo = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
+                //Comprobamos que los enemigos que metemos en la escena no se solapan.
+                //boolean encontradoEnemigo = false;
+                //while (!encontradoEnemigo) {
+                    //if (enemigos.size() > 0) {
+                        //boolean solapamientoDetectado = false;
+                        //int enemigoActual = 0;
+                        //while (enemigoActual < enemigos.size() && !solapamientoDetectado) {
+                            //if (enemigo.getBoundsInParent().intersects(enemigos.get(enemigoActual).getBoundsInParent())) {
+                                //solapamientoDetectado = true;
+                                //Random aleatorio = new Random();
+                                //enemigo.setTranslateX(CONTROLADOR_DE_ESCENA + aleatorio.nextInt(ANCHO_ESCENA - CONTROLADOR_DE_ESCENA));
+                            //}
+                            //enemigoActual++;
+                        //}
+                        //Encontrado enemigo valido.
+                        //if (!solapamientoDetectado) {
+                            //encontradoEnemigo = true;
+                        //}
+                    //}
+                    //else {
+                        //encontradoEnemigo = true;
+                    //}
+                //}
+                //enemigos.add(enemigo);
+                //contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
+                //contadorDeEnemigos++;
+            //} 
             
             nave.hacerAvanzarNave();
             
@@ -140,10 +180,12 @@ public class Juego extends Application
              * Compruebo si una bala impacta contra un enemigo, 
              * y en caso verdadero, elimino a la bala que imapacto 
              * contra el ememigo y al propio enemigo de sus respectivos 
-             * ArrayList y de la escena.
+             * ArrayList y de la escena. Cuando todos los enemigos son 
+             * eliminados, se generan mas enemigos dando paso asi a 
+             * otra oleada.
              */
             for (int contador = 0; contador < enemigos.size(); contador++) {
-                for (int contador2 = 0; contador < balas.size(); contador2++) {
+                for (int contador2 = 0; contador2 < balas.size(); contador2++) {
                     if (balas.get(contador2).controlarSiImpactaContraEnemigo(enemigos.get(contador))) {
                         contenedor.getChildren().remove(enemigos.get(contador));
                         enemigos.remove(enemigos.get(contador));
@@ -153,6 +195,27 @@ public class Juego extends Application
                         balas.remove(balas.get(contador2));
                         contadorDeBalas--;
                         contador2--;
+                        //Meto a la escena un enemigo mas por cada numero de enemigos eliminados.
+                        enemigosEliminados++;
+                        if (enemigos.size() == 0) {
+                            if (oleada >= NUMERO_MAXIMO_DE_ENEMIGOS_EN_OLEADA) {
+                                for (int contador3 = 0; contador3 < NUMERO_MAXIMO_DE_ENEMIGOS_EN_OLEADA; contador3++) {
+                                    Enemigo enemigoGeneradoPorTerminarOleada = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
+                                    enemigos.add(enemigoGeneradoPorTerminarOleada);
+                                    contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
+                                    contadorDeEnemigos++;
+                                }
+                            }
+                            else {
+                                for (int contador4 = 0; contador4 < oleada; contador4++) {
+                                    Enemigo enemigoGeneradoPorTerminarOleada = new Enemigo(ANCHO_ESCENA, ALTO_ESCENA);
+                                    enemigos.add(enemigoGeneradoPorTerminarOleada);
+                                    contenedor.getChildren().add(enemigos.get(contadorDeEnemigos));
+                                    contadorDeEnemigos++;
+                                }
+                                oleada++;
+                            }
+                        }
                     }
                 }
             }
@@ -165,22 +228,24 @@ public class Juego extends Application
              */
             for (Enemigo enemigoAComprobar : enemigos) {
                 if (nave.controlarSiChocaContraEnemigo(enemigoAComprobar)) {
-                    Label mensajeGameOver = new Label("GAME OVER...\n" + tiempoPasado.getText());
-                    mensajeGameOver.setTranslateX(escena.getWidth() / 3);
-                    mensajeGameOver.setTranslateY(escena.getHeight() / 3);
+                    Label mensajeGameOver = new Label("GAME OVER...\n" + tiempoPasado.getText() + "\nHas eliminado a " + enemigosEliminados + " enemigo(s).");
+                    mensajeGameOver.setTranslateX(escena.getWidth() / 2 - CONTROLADOR_MENSAJE_ERROR_X);
+                    mensajeGameOver.setTranslateY(escena.getHeight() / 2 - CONTROLADOR_MENSAJE_ERROR_Y);
                     mensajeGameOver.setTextFill(Color.web("#0A12AC"));
-                    mensajeGameOver.setFont(Font.font("Cambria", 32));
+                    mensajeGameOver.setFont(Font.font("Cambria", 30));
                     mensajeGameOver.setLineSpacing(5);
                     mensajeGameOver.setTextAlignment(TextAlignment.CENTER);
+                    mensajeGameOver.setScaleX(0.8);
+                    mensajeGameOver.setScaleY(0.8);
                     contenedor.getChildren().add(mensajeGameOver);
                     timeline.stop();
                 }
             }
             
             
-            tiempoPasado.setText("Puntuacion: " + minutos + ":" + segundos);
+            tiempoPasado.setText("Tiempo transcurrido: " + minutos + ":" + segundos);
             
-        });
+        }); 
         
         
         timeline.getKeyFrames().add(keyframe);
